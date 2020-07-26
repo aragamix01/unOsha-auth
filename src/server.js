@@ -1,11 +1,13 @@
-import { ApolloServer } from 'apollo-server';
+const { ApolloServer } = require('apollo-server-express');
+import express from 'express';
 import mongoose from 'mongoose';
 
 import typeDefs from './typeDefs';
 import resolvers from './resolvers';
 
-const redis = require("redis");
+const redis = require('redis');
 const client = redis.createClient();
+const app = express();
 
 mongoose.Promise = global.Promise;
 mongoose
@@ -23,6 +25,10 @@ mongoose
 
 const server = new ApolloServer({ typeDefs, resolvers });
 
-server.listen().then(({ url }) => {
-  console.log(`🚀  Server ready at ${url}`);
-});
+server.applyMiddleware({ app });
+
+// app.use(() => console.log('hello'));
+
+app.listen({ port: 4000 }, () =>
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+);

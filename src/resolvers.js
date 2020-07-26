@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 export default {
   Query: {
     async currentUser(root, { input }) {
-      console.log(input);
       return await User.findOne(input);
     },
   },
