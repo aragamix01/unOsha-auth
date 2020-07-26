@@ -34,8 +34,9 @@ const myLogger = function (req, res, next) {
 
 app.use(myLogger);
 
+app.use('/graphql', myLogger);
+
 app.get('/hello', (req, res) => {
-  console.log('hello');
   res.send('hello');
 });
 
