@@ -31,6 +31,7 @@ const myLogger = function (req, res, next) {
 };
 
 app.use(myLogger);
+app.use('/graphql', myLogger);
 
 app.get('/hello', async (req, res) => {
   await DAL.DAL.redisClient.SetDataFromKey("James", "Krub")
