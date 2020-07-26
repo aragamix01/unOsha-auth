@@ -5,8 +5,7 @@ import mongoose from 'mongoose';
 import typeDefs from './typeDefs';
 import resolvers from './resolvers';
 
-const redis = require('redis');
-const client = redis.createClient();
+const redis = require("./db/redis");
 const app = express();
 
 mongoose.Promise = global.Promise;
