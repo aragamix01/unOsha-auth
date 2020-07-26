@@ -9,7 +9,7 @@ export default gql`
     login(input: userinfo): User
   }
   input userinfo {
-    username: String
+    username: String!
     password: String
   }
 

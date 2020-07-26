@@ -1,5 +1,4 @@
-const { ApolloServer } = require('apollo-server-express');
-import express from 'express';
+const { ApolloServer } = require('apollo-server');
 import mongoose from 'mongoose';
 
 import typeDefs from './typeDefs';
@@ -20,27 +19,15 @@ mongoose
     console.log(`DB Connection Error: ${err.message}`);
   });
 
-const server = new ApolloServer({ typeDefs, resolvers });
-const app = express();
-const path = '/graphql';
-
-const myLogger = function (req, res, next) {
-  console.log('LOGGED');
-  next();
-};
-
-app.use(path, myLogger);
-
-server.applyMiddleware({ app, path });
-
-app.get('/hello', async (req, res) => {
-  await DAL.DAL.redisClient.SetDataFromKey('James', 'Krub');
-  let a = await DAL.DAL.redisClient.GetDataFromKey('James');
-  console.log(a);
-  res.send('hello');
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: ({ req }) => {
+    console.log(req);
+  },
 });
 
-app.listen(4000, async () => {
+server.listen().then(({ url }) => {
   new DAL.DAL();
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
+  console.log(`🚀  Server ready at ${url}`);
 });
