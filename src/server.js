@@ -29,8 +29,6 @@ const myLogger = function (req, res, next) {
   next();
 };
 
-app.use(myLogger);
-
 app.use(path, myLogger);
 
 server.applyMiddleware({ app, path });
