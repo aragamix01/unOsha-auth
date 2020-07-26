@@ -6,6 +6,7 @@ export default gql`
   }
   type Mutation {
     signup(input: userinfo): User
+    login(input: userinfo): User
   }
   input userinfo {
     username: String

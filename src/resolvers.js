@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 export default {
   Query: {
     async currentUser(root, { input }) {
-      console.log(input);
       return await User.findOne(input);
     },
   },
@@ -22,6 +21,24 @@ export default {
         password: hash,
       });
       return await User.findOne({ username });
+    },
+    async login(root, { input: { username, password } }) {
+      // const conditions = Boolean(username) && Boolean(password);
+      // if (conditions) {
+      //   throw new Error('username or password is invalid');
+      // }
+
+      const user = await User.findOne({ username });
+      if (!user) {
+        throw new Error('Email not found');
+      }
+
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (!validPassword) {
+        throw new Error('Password is incorrect');
+      }
+
+      return user;
     },
   },
 };
