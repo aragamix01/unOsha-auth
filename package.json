@@ -21,6 +21,7 @@
     "apollo-server": "^2.16.0",
     "bcrypt": "^5.0.0",
     "graphql": "^15.3.0",
-    "mongoose": "^5.9.25"
+    "mongoose": "^5.9.25",
+    "redis": "^3.0.2"
   }
 }
