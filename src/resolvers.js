@@ -1,4 +1,5 @@
 import User from './models/User';
+import bcrypt from 'bcrypt';
 
 export default {
   Query: {
@@ -10,11 +11,17 @@ export default {
 
   Mutation: {
     async signup(root, { input: { username, password } }) {
-      const existingUser = await Users.findOne({ username });
+      const existingUser = await User.findOne({ username });
       if (existingUser) {
-        throw new Error('Email already used');
+        throw new Error('Username already used');
       }
-      return await User.create(input);
+
+      const hash = await bcrypt.hash(password, 4);
+      await User.create({
+        username,
+        password: hash,
+      });
+      return await User.findOne({ username });
     },
   },
 };
