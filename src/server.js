@@ -27,7 +27,17 @@ const server = new ApolloServer({ typeDefs, resolvers });
 
 server.applyMiddleware({ app });
 
-// app.use(() => console.log('hello'));
+const myLogger = function (req, res, next) {
+  console.log('LOGGED');
+  next();
+};
+
+app.use(myLogger);
+
+app.get('/hello', (req, res) => {
+  console.log('hello');
+  res.send('hello');
+});
 
 app.listen({ port: 4000 }, () =>
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
