@@ -4,8 +4,7 @@ import mongoose from 'mongoose';
 
 import typeDefs from './typeDefs';
 import resolvers from './resolvers';
-const DAL = require("./db/dal");
-const app = express();
+const DAL = require('./db/dal');
 
 mongoose.Promise = global.Promise;
 mongoose
@@ -22,8 +21,8 @@ mongoose
   });
 
 const server = new ApolloServer({ typeDefs, resolvers });
-
-server.applyMiddleware({ app });
+const app = express();
+const path = '/graphql';
 
 const myLogger = function (req, res, next) {
   console.log('LOGGED');
@@ -31,16 +30,19 @@ const myLogger = function (req, res, next) {
 };
 
 app.use(myLogger);
-app.use('/graphql', myLogger);
+
+app.use(path, myLogger);
+
+server.applyMiddleware({ app, path });
 
 app.get('/hello', async (req, res) => {
-  await DAL.DAL.redisClient.SetDataFromKey("James", "Krub")
-  let a = await DAL.DAL.redisClient.GetDataFromKey("James")
-  console.log(a)
+  await DAL.DAL.redisClient.SetDataFromKey('James', 'Krub');
+  let a = await DAL.DAL.redisClient.GetDataFromKey('James');
+  console.log(a);
   res.send('hello');
 });
 
-app.listen(4000 , async () => {
+app.listen(4000, async () => {
   new DAL.DAL();
-  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
+  console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`);
 });
