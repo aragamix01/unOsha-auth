@@ -4,8 +4,7 @@ import mongoose from 'mongoose';
 
 import typeDefs from './typeDefs';
 import resolvers from './resolvers';
-
-const redis = require("./db/redis");
+const DAL = require("./db/dal");
 const app = express();
 
 mongoose.Promise = global.Promise;
@@ -33,11 +32,14 @@ const myLogger = function (req, res, next) {
 
 app.use(myLogger);
 
-app.get('/hello', (req, res) => {
-  console.log('hello');
+app.get('/hello', async (req, res) => {
+  await DAL.DAL.redisClient.SetDataFromKey("James", "Krub")
+  let a = await DAL.DAL.redisClient.GetDataFromKey("James")
+  console.log(a)
   res.send('hello');
 });
 
-app.listen({ port: 4000 }, () =>
+app.listen(4000 , async () => {
+  new DAL.DAL();
   console.log(`🚀 Server ready at http://localhost:4000${server.graphqlPath}`)
-);
+});
