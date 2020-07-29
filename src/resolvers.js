@@ -52,9 +52,10 @@ export default {
 const toUserRes = (user) => {
   const data = user.toObject();
   const userRes = { ...data, token: jwt.sign({ ...data }, SUPER_SECRET) };
+
   DBCache.DBCache.redisClient.SetDataFromKey(
     data._id.toString(),
     userRes.token
   );
   return userRes;
-},
+};
