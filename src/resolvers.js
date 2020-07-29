@@ -1,9 +1,20 @@
 import User from './models/User';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+const DBCache = require('./db/dbcache');
+
+const SUPER_SECRET = 'supersecret';
 
 export default {
   Query: {
-    async currentUser(root, { input }) {
+    async currentUser(root, { input }, context) {
+      const token = context.token;
+      console.log(token);
+
+      if (!token) {
+        throw new Error('You need to login first.');
+      }
+
       return await User.findOne(input);
     },
   },
@@ -23,14 +34,9 @@ export default {
       return await User.findOne({ username });
     },
     async login(root, { input: { username, password } }) {
-      // const conditions = Boolean(username) && Boolean(password);
-      // if (conditions) {
-      //   throw new Error('username or password is invalid');
-      // }
-
       const user = await User.findOne({ username });
       if (!user) {
-        throw new Error('Email not found');
+        throw new Error('Username not found');
       }
 
       const validPassword = await bcrypt.compare(password, user.password);
@@ -38,7 +44,17 @@ export default {
         throw new Error('Password is incorrect');
       }
 
-      return user;
+      return toUserRes(user);
     },
   },
 };
+
+const toUserRes = (user) => {
+  const data = user.toObject();
+  const userRes = { ...data, token: jwt.sign({ ...data }, SUPER_SECRET) };
+  DBCache.DBCache.redisClient.SetDataFromKey(
+    data._id.toString(),
+    userRes.token
+  );
+  return userRes;
+},

@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 import typeDefs from './typeDefs';
 import resolvers from './resolvers';
-const DAL = require('./db/dal');
+const DBCache = require('./db/dbcache');
 
 mongoose.Promise = global.Promise;
 mongoose
@@ -24,11 +24,12 @@ const server = new ApolloServer({
   resolvers,
   context: ({ req }) => {
     const token = req.headers.authorization || '';
-    console.log(token);
+    // console.log(token);
+    return { token };
   },
 });
 
 server.listen().then(({ url }) => {
-  new DAL.DAL();
+  new DBCache.DBCache();
   console.log(`🚀  Server ready at ${url}`);
 });
