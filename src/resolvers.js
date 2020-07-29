@@ -9,13 +9,14 @@ export default {
   Query: {
     async currentUser(root, { input }, context) {
       const token = context.token;
-      console.log(token);
 
       if (!token) {
         throw new Error('You need to login first.');
       }
 
-      return await User.findOne(input);
+      await verifyToken(token);
+      const user = await User.findOne({ input });
+      return toUserReswithNotSign(user);
     },
   },
 
@@ -31,7 +32,9 @@ export default {
         username,
         password: hash,
       });
-      return await User.findOne({ username });
+
+      const user = await User.findOne({ username });
+      return toUserRes(user);
     },
     async login(root, { input: { username, password } }) {
       const user = await User.findOne({ username });
@@ -44,18 +47,38 @@ export default {
         throw new Error('Password is incorrect');
       }
 
-      return toUserRes(user);
+      return toUserReswithSign(user);
     },
   },
 };
 
-const toUserRes = (user) => {
+async function toUserReswithSign(user) {
   const data = user.toObject();
-  const userRes = { ...data, token: jwt.sign({ ...data }, SUPER_SECRET) };
+  const userRes = {
+    ...data,
+    token: jwt.sign({ _id: data._id.toString() }, SUPER_SECRET),
+  };
 
-  DBCache.DBCache.redisClient.SetDataFromKey(
+  await DBCache.DBCache.redisClient.SetDataFromKey(
     data._id.toString(),
     userRes.token
   );
   return userRes;
-};
+}
+
+async function toUserReswithNotSign(user) {
+  const data = user.toObject();
+  const token = await DBCache.DBCache.redisClient.GetDataFromKey(
+    data._id.toString()
+  );
+  const userRes = { ...data, token: token[0], SUPER_SECRET };
+  return userRes;
+}
+
+async function verifyToken(token) {
+  await jwt.verify(token.split(' ')[1], SUPER_SECRET, (err, res) => {
+    if (err) {
+      throw new Error(err);
+    }
+  });
+}
